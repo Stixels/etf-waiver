@@ -1,0 +1,39 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url  	= env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  // If you want to use Prisma Migrate, you will need to manually create a shadow database
+  // https://neon.tech/docs/guides/prisma-migrate#configure-a-shadow-database-for-prisma-migrate
+  // make sure to append ?connect_timeout=10 to the connection string
+  // shadowDatabaseUrl = env(“SHADOW_DATABASE_URL”)
+}
+
+model Waiver {
+  id         Int     @id @default(autoincrement())
+  firstName  String
+  lastName   String
+  email      String
+  dob        DateTime
+  minors     String?
+  phone      String?
+  address    String?
+  gender     String?
+  source     String? // where did you hear about us
+  groupId    String  // This will allow a waiver to be part of a group
+  Group      Group   @relation(fields: [groupId], references: [id])
+}
+
+model Group {
+  id         String   @id
+  startTime  DateTime
+  productName String
+  waivers    Waiver[] // One-to-many relationship with Waiver
+}
+
