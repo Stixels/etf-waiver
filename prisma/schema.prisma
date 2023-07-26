@@ -16,24 +16,24 @@ datasource db {
 }
 
 model Waiver {
-  id         Int     @id @default(autoincrement())
-  firstName  String
-  lastName   String
-  email      String
-  dob        DateTime
-  minors     String?
-  phone      String?
-  address    String?
-  gender     String?
-  source     String? // where did you hear about us
-  groupId    String  // This will allow a waiver to be part of a group
-  Group      Group   @relation(fields: [groupId], references: [id])
+  id             Int      @id @default(autoincrement())
+  firstName      String
+  lastName       String
+  email          String
+  dob            DateTime
+  minors         String?
+  phone          String?
+  address        String?
+  gender         String?
+  source         String? // where did you hear about us
+  timestamp      DateTime @default(now())
+  bookingNumber  String  
+  Booking        Booking  @relation(fields: [bookingNumber], references: [id])
 }
 
-model Group {
-  id         String   @id
+model Booking {
+  id     String   @id
   startTime  DateTime
   productName String
   waivers    Waiver[] // One-to-many relationship with Waiver
 }
-

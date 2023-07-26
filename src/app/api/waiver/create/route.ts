@@ -1,4 +1,4 @@
-// pages/api/waivers.ts
+// app/api/waiver/create/route.ts
 import { PrismaClient } from "@prisma/client";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -9,21 +9,50 @@ type IRequestData = {
   lastName: string;
   email: string;
   dob: string;
-  groupId: string;
+  bookingNumber: string;
+  productName: string;
+  startTime: string;
 };
 
 export async function POST(req: NextRequest) {
   const data: IRequestData = await req.json();
-  const { firstName, lastName, email, dob, groupId } = data;
+  const {
+    firstName,
+    lastName,
+    email,
+    dob,
+    bookingNumber,
+    productName,
+    startTime,
+  } = data;
 
   try {
+    // check if booking already exists
+    const booking = await prisma.booking.findUnique({
+      where: {
+        id: bookingNumber,
+      },
+    });
+
+    if (!booking) {
+      // create booking
+      const newBooking = await prisma.booking.create({
+        data: {
+          id: bookingNumber,
+          productName,
+          startTime: new Date(startTime),
+        },
+      });
+    }
+
+    // create waiver
     const newWaiver = await prisma.waiver.create({
       data: {
         firstName,
         lastName,
         email,
         dob: new Date(dob),
-        groupId,
+        bookingNumber,
       },
     });
 
