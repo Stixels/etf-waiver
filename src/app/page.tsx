@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -16,7 +16,6 @@ const Home = () => {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState(searchTerm);
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
 
   const handleBookingClick = () => {
@@ -24,28 +23,14 @@ const Home = () => {
   };
 
   const handleEditWaiverClick = () => {
-    router.push("/edit-waiver");
+    router.push("/edit-waiverform");
   };
 
   const handleSortSwitch = () => {
     setSortByBooking(!sortByBooking);
   };
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 300);
-
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [searchTerm]);
-
-  useEffect(() => {
-    fetchSignedWaivers();
-  }, [debouncedSearchTerm, dateRange]);
-
-  const fetchSignedWaivers = async () => {
+  const fetchSignedWaivers = useCallback(async () => {
     setLoading(true);
     try {
       const response = await fetch(
@@ -70,7 +55,12 @@ const Home = () => {
       console.error("Failed to fetch waivers: ", error);
       setLoading(false);
     }
-  };
+  }, [page, searchTerm, dateRange]);
+
+  useEffect(() => {
+    fetchSignedWaivers();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <main className="min-h-screen p-4">
@@ -107,12 +97,9 @@ const Home = () => {
             placeholder="Search by name or email..."
             className="w-full rounded border border-gray-300 px-3 py-2"
           />
+          <Button onClick={fetchSignedWaivers}>Search</Button>
         </div>
-        {loading ? (
-          <p className="text-center text-lg text-gray-500">Loading...</p>
-        ) : (
-          <WaiverTable columns={columns} data={waivers} />
-        )}
+        <WaiverTable columns={columns} data={waivers} />
       </div>
     </main>
   );
