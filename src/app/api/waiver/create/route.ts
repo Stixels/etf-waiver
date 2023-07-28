@@ -12,6 +12,8 @@ type IRequestData = {
   bookingNumber: string;
   productName: string;
   startTime: string;
+  minors: string[];
+  source: string;
 };
 
 export async function POST(req: NextRequest) {
@@ -24,6 +26,8 @@ export async function POST(req: NextRequest) {
     bookingNumber,
     productName,
     startTime,
+    minors,
+    source,
   } = data;
 
   try {
@@ -52,7 +56,9 @@ export async function POST(req: NextRequest) {
         lastName,
         email,
         dob: new Date(dob),
-        bookingNumber,
+        bookingId: bookingNumber,
+        minors: JSON.stringify(minors),
+        source,
       },
     });
 

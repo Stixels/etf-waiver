@@ -40,9 +40,17 @@ export async function GET(req: NextRequest) {
       },
     });
 
+    // Parse minors field for each waiver
+    const parsedWaivers = waivers.map((waiver) => ({
+      ...waiver,
+      minors: JSON.parse((waiver.minors as string) || "[]"),
+    }));
+
     const totalWaivers = await prisma.waiver.count();
 
-    return new NextResponse(JSON.stringify({ waivers, total: totalWaivers }));
+    return new NextResponse(
+      JSON.stringify({ waivers: parsedWaivers, total: totalWaivers }),
+    );
   } catch (error) {
     return new NextResponse(
       JSON.stringify({
